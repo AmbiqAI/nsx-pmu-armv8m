@@ -1,0 +1,34 @@
+schema_version: 1
+
+module:
+  name: nsx-pmu-armv8m
+  type: runtime
+  version: "0.1.0"
+
+support:
+  ambiqsuite: true
+  zephyr: false
+
+build:
+  cmake:
+    package: nsx_pmu_armv8m
+    targets:
+      - nsx::pmu_armv8m
+
+depends:
+  required:
+    - nsx-core
+    - nsx-soc-hal
+  optional:
+    - nsx-harness
+
+compatibility:
+  boards:
+    - "*"
+  socs:
+    - apollo5b
+    - apollo510
+    - apollo510b
+    - apollo330P
+  toolchains:
+    - arm-none-eabi-gcc
