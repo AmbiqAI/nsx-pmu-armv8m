@@ -5,9 +5,9 @@
  *
  * @version 0.1
  * @date 2024-08-16
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 
 #ifndef NS_PMU_UTILS_H
@@ -18,6 +18,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define NS_PMU_MAX_COUNTERS 8
 
 #define NS_PMU_V0_0_1                                                                        \
     { .major = 0, .minor = 0, .revision = 1 }
@@ -45,20 +47,20 @@ typedef struct ns_pmu_event {
 } ns_pmu_event_t;
 
 typedef struct ns_pmu_counter {
-    bool added;            /*!< Used to track if the event has been added to 
+    bool added;            /*!< Used to track if the event has been added to
                                 the am_util_pmu_config_t */
     uint32_t mapIndex;     /// pmu_map index for this event
     uint32_t counterValue; /// Value read from the PMU
 } ns_pmu_counter_t;
 
 typedef struct {
-    uint32_t counterValue[8]; /// Value read from the PMU
+    uint32_t counterValue[NS_PMU_MAX_COUNTERS]; /// Value read from the PMU
 } ns_pmu_counters_t; // just the counter values, used for snapshots
 
 typedef struct ns_pmu_config {
     const ns_core_api_t *api;
-    ns_pmu_event_t events[8];
-    ns_pmu_counter_t counter[8];
+    ns_pmu_event_t events[NS_PMU_MAX_COUNTERS];
+    ns_pmu_counter_t counter[NS_PMU_MAX_COUNTERS];
 } ns_pmu_config_t;
 
 typedef enum {

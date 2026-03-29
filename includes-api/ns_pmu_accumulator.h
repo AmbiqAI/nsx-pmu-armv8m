@@ -7,7 +7,7 @@
  * USAGE (one model, collected across several invocations):
  *
  *     #define OPS      128                         // layers / operators
- *     #define EVENTS   NS_PMU_MAP_SIZE             // 71 on Apollo5B
+ *     #define EVENTS   NS_PMU_MAP_SIZE             // 70 on current M55 targets
  *     static uint32_t backing[OPS * EVENTS];
  *
  *     ns_pmu_accm_t h = ns_pmu_accm_create(OPS, EVENTS, backing);
