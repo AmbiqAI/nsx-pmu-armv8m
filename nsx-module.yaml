@@ -9,6 +9,27 @@ support:
   ambiqsuite: true
   zephyr: false
 
+summary: Armv8-M PMU helpers for hardware counter configuration, capture, and transport.
+
+capabilities:
+  - pmu
+  - profiling
+  - hardware_counters
+  - armv8m
+
+use_cases:
+  - function profiling
+  - layer profiling
+  - model-level PMU measurement
+  - MVE or Helium counter capture
+
+agent_keywords:
+  - pmu
+  - counters
+  - cycles
+  - armv8-m
+  - mve
+
 build:
   cmake:
     package: nsx_pmu_armv8m
