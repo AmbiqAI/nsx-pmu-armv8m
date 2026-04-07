@@ -20,7 +20,7 @@ typedef struct {
 
 #define NS_PMU_EVENT_NAME_MAX_LEN 50
 
-#if defined(AM_PART_APOLLO5B) || defined(AM_PART_APOLLO510L) || defined(AM_PART_APOLLO330P)
+#if defined(AM_PART_APOLLO5B) || defined(AM_PART_APOLLO510) || defined(AM_PART_APOLLO510B) || defined(AM_PART_APOLLO510L) || defined(AM_PART_APOLLO330P)
 extern uint32_t g_ns_pmu_map_length;
 #define NS_NUM_PMU_MAP_SIZE (g_ns_pmu_map_length/sizeof(ns_pmu_map_t))
 extern const ns_pmu_map_t ns_pmu_map[];
