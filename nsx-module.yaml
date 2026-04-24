@@ -54,3 +54,5 @@ compatibility:
   toolchains:
     - arm-none-eabi-gcc
     - armclang
+
+    - atfe
