@@ -1,41 +1,35 @@
 schema_version: 1
-
 module:
   name: nsx-pmu-armv8m
   type: runtime
-  version: "0.1.0"
-
+  version: 0.1.1
 support:
   ambiqsuite: true
   zephyr: false
-
-summary: Armv8-M PMU helpers for hardware counter configuration, capture, and transport.
-
+summary: >-
+  Armv8-M PMU helpers for hardware counter configuration, capture, and
+  transport.
 capabilities:
   - pmu
   - profiling
   - hardware_counters
   - armv8m
-
 use_cases:
   - function profiling
   - layer profiling
   - model-level PMU measurement
   - MVE or Helium counter capture
-
 agent_keywords:
   - pmu
   - counters
   - cycles
   - armv8-m
   - mve
-
 build:
   cmake:
     package: nsx_pmu_armv8m
     targets:
       - nsx::pmu_armv8m
-
 depends:
   required:
     - nsx-cmsis-core
@@ -43,10 +37,9 @@ depends:
     - nsx-soc-hal
   optional:
     - nsx-harness
-
 compatibility:
   boards:
-    - "*"
+    - '*'
   socs:
     - apollo5b
     - apollo510
@@ -55,5 +48,4 @@ compatibility:
   toolchains:
     - arm-none-eabi-gcc
     - armclang
-
     - atfe
