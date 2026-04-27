@@ -22,3 +22,15 @@ Design notes:
 - accumulator helpers are intended for model, layer, and function profiling flows used by LiteRT for Microcontrollers and NSX runtime variants
 - full-map MVE profiling still uses repeated passes because only four 32-bit PMU events can be sampled at once on the current M55 targets
 - chunked capture trades additional model passes for bounded RAM use when a model has too many layers to retain in one dense matrix
+
+## Toolchains
+
+Built and validated under `arm-none-eabi-gcc`, `armclang`, and `clang`/ATfE.
+PMU access is via CMSIS-6 PMU intrinsics (`PMU_*` macros) supplied by
+`nsx-cmsis-core`; toolchain-specific intrinsic mappings are handled inside
+CMSIS-6's `cmsis_<compiler>.h`.
+
+## Dependencies
+
+- `nsx-cmsis-core` (required) — CMSIS-6 core + PMU headers.
+- `nsx-core` — for `ns_printf` and runtime sequencing helpers.
