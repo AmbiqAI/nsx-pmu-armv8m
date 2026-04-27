@@ -24,6 +24,7 @@ add_library(nsx::pmu_armv8m ALIAS nsx_pmu_armv8m)
 
 target_link_libraries(nsx_pmu_armv8m PUBLIC
     ${NSX_BOARD_FLAGS_TARGET}
+    nsx::cmsis_core
     nsx_soc_hal
     nsx_core
     nsx_harness

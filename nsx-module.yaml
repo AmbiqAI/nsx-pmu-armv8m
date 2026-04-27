@@ -38,6 +38,7 @@ build:
 
 depends:
   required:
+    - nsx-cmsis-core
     - nsx-core
     - nsx-soc-hal
   optional:
