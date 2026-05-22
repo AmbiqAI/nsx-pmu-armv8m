@@ -10,7 +10,20 @@
  */
 #ifndef NS_PMU_MAP_H
 #define NS_PMU_MAP_H
+
+// Ambiq/CMSIS headers include overloaded MVE intrinsics in C++ mode.
+// Keep them out of any caller-provided extern "C" block.
+#ifdef __cplusplus
+extern "C++" {
+#endif
 #include "am_mcu_apollo.h"
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     uint32_t eventId;
@@ -28,5 +41,9 @@ extern const ns_pmu_map_t ns_pmu_map[];
 // (sizeof(ns_pmu_map) / sizeof(ns_pmu_map_t))
 #else
 #define NS_NUM_PMU_MAP_SIZE 0
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 #endif // NS_PMU_MAP_H
