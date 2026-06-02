@@ -30,6 +30,32 @@ extern "C" {
 #define NS_PMU_CURRENT_VERSION NS_PMU_V1_0_0
 #define NS_PMU_API_ID 0xCA000B
 
+#ifndef NS_PMU_PRINT_BUFFER_BYTES
+#define NS_PMU_PRINT_BUFFER_BYTES 256
+#endif
+
+/**
+ * @brief Optional print sink for PMU debug/dump helpers.
+ *
+ * The PMU module emits human-readable diagnostics (matrix dumps, validation
+ * messages, counter reports) through this callback. It is intentionally
+ * decoupled from any SoC-specific console or harness: when no sink is
+ * installed, those helpers produce no output. Install a sink that forwards to
+ * the application's console (for example one that calls am_util_stdio_printf
+ * or ns_lp_printf) with ns_pmu_set_print_fn().
+ */
+typedef void (*ns_pmu_print_fn_t)(const char *text);
+
+/** Install (or clear, with NULL) the PMU print sink. */
+void ns_pmu_set_print_fn(ns_pmu_print_fn_t fn);
+
+/**
+ * @brief printf-style helper that routes formatted text to the installed sink.
+ *
+ * Produces no output when no sink is installed.
+ */
+void ns_pmu_printf(const char *fmt, ...);
+
 extern const ns_core_api_t ns_pmu_V0_0_1;
 extern const ns_core_api_t ns_pmu_V1_0_0;
 extern const ns_core_api_t ns_pmu_oldest_supported_version;

@@ -41,8 +41,6 @@ depends:
     - nsx-cmsis-core
     - nsx-core
     - nsx-soc-hal
-  optional:
-    - nsx-harness
 
 compatibility:
   boards:

@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ns_ambiqsuite_harness.h"
+#include "ns_pmu_utils.h"
 #include "ns_core.h"
 
 typedef struct {
@@ -30,7 +30,7 @@ static uint32_t ns_pmu_log_sink_emit(ns_pmu_log_sink_context_t *context)
     }
 
     context->line_buffer[context->used] = '\0';
-    ns_lp_printf("%s", context->line_buffer);
+    ns_pmu_printf("%s", context->line_buffer);
     context->used = 0;
     return NS_STATUS_SUCCESS;
 }

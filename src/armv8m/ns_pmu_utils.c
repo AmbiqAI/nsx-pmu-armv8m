@@ -9,7 +9,10 @@
 #include "ns_core.h"
 #include "ns_pmu_map.h"
 #include "ns_pmu_utils.h"
+#include "am_util_pmu.h"
 
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 #define NS_PMU_COUNTER_MASK(index) (1UL << (index))
@@ -27,6 +30,31 @@ static bool ns_pmu_initialized = false;
 static bool ns_pmu_profiling = false;
 static uint32_t ns_pmu_config_index[NS_PMU_MAX_COUNTERS];
 uint32_t g_ns_pmu_map_length;
+
+static ns_pmu_print_fn_t g_ns_pmu_print_fn = NULL;
+
+void ns_pmu_set_print_fn(ns_pmu_print_fn_t fn)
+{
+    g_ns_pmu_print_fn = fn;
+}
+
+void ns_pmu_printf(const char *fmt, ...)
+{
+    if (g_ns_pmu_print_fn == NULL || fmt == NULL) {
+        return;
+    }
+
+    char buffer[NS_PMU_PRINT_BUFFER_BYTES];
+    va_list args;
+    va_start(args, fmt);
+    int length = vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+
+    if (length < 0) {
+        return;
+    }
+    g_ns_pmu_print_fn(buffer);
+}
 
 const ns_pmu_map_t ns_pmu_map[] = {
     {0x0000, "ARM_PMU_SW_INCR", "Software update to the PMU_SWINC register, architecturally executed and condition code check pass"},
@@ -156,16 +184,16 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
 
 #ifndef NS_DISABLE_API_VALIDATION
     if (cfg == NULL) {
-        ns_lp_printf("Invalid handle\n");
+        ns_pmu_printf("Invalid handle\n");
         return NS_STATUS_INVALID_HANDLE;
     }
     if (cfg->api == NULL) {
-        ns_lp_printf("Invalid PMU API version\n");
+        ns_pmu_printf("Invalid PMU API version\n");
         return NS_STATUS_INVALID_VERSION;
     }
     if (ns_core_check_api(cfg->api, &ns_pmu_oldest_supported_version, &ns_pmu_current_version) !=
         NS_STATUS_SUCCESS) {
-        ns_lp_printf("Invalid PMU API version\n");
+        ns_pmu_printf("Invalid PMU API version\n");
         return NS_STATUS_INVALID_VERSION;
     }
 
@@ -182,7 +210,7 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
         }
     }
     if (total_counters > NS_PMU_MAX_COUNTERS) {
-        ns_lp_printf("Too many counters enabled tc is %d\n", total_counters);
+        ns_pmu_printf("Too many counters enabled tc is %d\n", total_counters);
         return NS_STATUS_INVALID_CONFIG;
     }
 #endif
@@ -200,7 +228,7 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
 
         int map_index = ns_pmu_get_map_index(cfg->events[i].eventId);
         if (map_index < 0) {
-            ns_lp_printf("Invalid event id %d\n", cfg->events[i].eventId);
+            ns_pmu_printf("Invalid event id %d\n", cfg->events[i].eventId);
             return NS_STATUS_INVALID_CONFIG;
         }
         cfg->counter[i].mapIndex = (uint32_t) map_index;
@@ -296,7 +324,7 @@ uint32_t ns_pmu_print_counters(ns_pmu_config_t *cfg)
             continue;
         }
         uint32_t map_index = cfg->counter[i].mapIndex;
-        ns_lp_printf("%d %d, \t%s, \t \"%s\"\n",
+        ns_pmu_printf("%d %d, \t%s, \t \"%s\"\n",
                      i,
                      cfg->counter[i].counterValue,
                      ns_pmu_map[map_index].regname,

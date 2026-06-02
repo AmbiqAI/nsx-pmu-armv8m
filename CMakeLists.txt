@@ -27,18 +27,15 @@ target_link_libraries(nsx_pmu_armv8m PUBLIC
     nsx::cmsis_core
     nsx_soc_hal
     nsx_core
-    nsx_harness
 )
 
 target_include_directories(nsx_pmu_armv8m PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/includes-api>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/${NSX_PMU_IMPL_DIR}>
     $<BUILD_INTERFACE:${NSX_ROOT}/modules/nsx-core/includes-api>
-    $<BUILD_INTERFACE:${NSX_ROOT}/modules/nsx-harness/includes-api>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nsx/modules/nsx-pmu-armv8m/includes-api>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nsx/modules/nsx-pmu-armv8m/src/${NSX_PMU_IMPL_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nsx/modules/nsx-core/includes-api>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/nsx/modules/nsx-harness/includes-api>
 )
 
 install(DIRECTORY
