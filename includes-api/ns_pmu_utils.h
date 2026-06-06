@@ -74,7 +74,7 @@ typedef struct ns_pmu_event {
 
 typedef struct ns_pmu_counter {
     bool added;            /*!< Used to track if the event has been added to
-                                the am_util_pmu_config_t */
+                                the backend PMU config */
     uint32_t mapIndex;     /// pmu_map index for this event
     uint32_t counterValue; /// Value read from the PMU
 } ns_pmu_counter_t;

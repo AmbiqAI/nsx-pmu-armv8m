@@ -46,9 +46,11 @@ compatibility:
   boards:
     - "*"
   socs:
+    - atomiq110
     - apollo5b
     - apollo510
     - apollo510b
+    - apollo510L
     - apollo330P
   toolchains:
     - arm-none-eabi-gcc
