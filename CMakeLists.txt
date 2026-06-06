@@ -33,7 +33,19 @@ target_link_libraries(nsx_pmu_armv8m PUBLIC
 if(TARGET nsx_ambiq_hal)
     target_include_directories(nsx_pmu_armv8m PRIVATE
         $<TARGET_PROPERTY:nsx_ambiq_hal,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:nsx_ambiq_hal,INCLUDE_DIRECTORIES>
     )
+endif()
+
+find_path(NSX_AMBIQ_PMU_INCLUDE_DIR
+    nsx_ambiq_pmu.h
+    PATHS
+        ${NSX_ROOT}/modules/nsx-ambiq-sdk-r5/modules/nsx-ambiq-hal-r5/includes-api
+        ${NSX_ROOT}/modules/nsx-ambiq-sdk-r6/modules/nsx-ambiq-hal-r6/includes-api
+    NO_DEFAULT_PATH
+)
+if(NSX_AMBIQ_PMU_INCLUDE_DIR)
+    target_include_directories(nsx_pmu_armv8m PRIVATE ${NSX_AMBIQ_PMU_INCLUDE_DIR})
 endif()
 
 target_include_directories(nsx_pmu_armv8m PUBLIC
