@@ -30,6 +30,12 @@ target_link_libraries(nsx_pmu_armv8m PUBLIC
     nsx_core
 )
 
+if(TARGET nsx_ambiq_hal)
+    target_include_directories(nsx_pmu_armv8m PRIVATE
+        $<TARGET_PROPERTY:nsx_ambiq_hal,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+endif()
+
 target_include_directories(nsx_pmu_armv8m PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/includes-api>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/${NSX_PMU_IMPL_DIR}>
