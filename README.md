@@ -33,4 +33,17 @@ CMSIS-6's `cmsis_<compiler>.h`.
 ## Dependencies
 
 - `nsx-cmsis-core` (required) — CMSIS-6 core + PMU headers.
-- `nsx-core` — for `ns_printf` and runtime sequencing helpers.
+- `nsx-core` (required) — status codes, API-version checks, and runtime helpers.
+- `nsx-soc-hal` (required) — `am_util_pmu` PMU programming utilities.
+
+This module has **no console or harness dependency**. Diagnostic output
+(matrix dumps, validation messages, counter reports) is routed through an
+optional print sink. Install one to see output:
+
+```c
+#include "ns_pmu_utils.h"
+
+static void my_pmu_print(const char *text) { ns_lp_printf("%s", text); }
+
+ns_pmu_set_print_fn(my_pmu_print);   // omit to silence PMU diagnostics
+```

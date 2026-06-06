@@ -1,0 +1,32 @@
+/**
+ * @file nsx_pmu_capture.h
+ * @brief NSX-facing aliases for chunked PMU capture helpers.
+ */
+
+#ifndef NSX_PMU_CAPTURE_H
+#define NSX_PMU_CAPTURE_H
+
+#include "ns_pmu_capture.h"
+
+typedef ns_pmu_capture_cfg_t nsx_pmu_capture_cfg_t;
+typedef ns_pmu_capture_chunk_info_t nsx_pmu_capture_chunk_info_t;
+typedef ns_pmu_capture_t nsx_pmu_capture_t;
+
+#define NSX_PMU_CAPTURE_MAX_EVENTS_PER_PASS NS_PMU_CAPTURE_MAX_EVENTS_PER_PASS
+
+#define nsx_pmu_capture_init ns_pmu_capture_init
+#define nsx_pmu_capture_reset ns_pmu_capture_reset
+#define nsx_pmu_capture_model_begin ns_pmu_capture_model_begin
+#define nsx_pmu_capture_model_end ns_pmu_capture_model_end
+#define nsx_pmu_capture_should_sample_layer ns_pmu_capture_should_sample_layer
+#define nsx_pmu_capture_layer_begin ns_pmu_capture_layer_begin
+#define nsx_pmu_capture_layer_end ns_pmu_capture_layer_end
+#define nsx_pmu_capture_chunk_ready ns_pmu_capture_chunk_ready
+#define nsx_pmu_capture_complete ns_pmu_capture_complete
+#define nsx_pmu_capture_advance_chunk ns_pmu_capture_advance_chunk
+#define nsx_pmu_capture_get_chunk_info ns_pmu_capture_get_chunk_info
+#define nsx_pmu_capture_get_chunk_matrix ns_pmu_capture_get_chunk_matrix
+#define nsx_pmu_capture_get_event_map_index ns_pmu_capture_get_event_map_index
+#define nsx_pmu_capture_serialize_csv ns_pmu_capture_serialize_csv
+
+#endif // NSX_PMU_CAPTURE_H

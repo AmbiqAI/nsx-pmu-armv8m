@@ -210,19 +210,19 @@ void ns_pmu_accmprint_matrix(ns_pmu_accm_t h, uint32_t *matrix, uint16_t ops, ui
 {
     acc_t *a = handle_to_acc(h);
 
-    ns_lp_printf("Op: ");
+    ns_pmu_printf("Op: ");
     for (uint16_t j = 0; j < events; ++j) {
-        ns_lp_printf("%s ", ns_pmu_map[j].regname);
+        ns_pmu_printf("%s ", ns_pmu_map[j].regname);
     }
-    ns_lp_printf("\n");
+    ns_pmu_printf("\n");
 
     if (a && matrix) {
         for (uint16_t i = 0; i < ops; ++i) {
-            ns_lp_printf("%u, ", i);
+            ns_pmu_printf("%u, ", i);
             for (uint16_t j = 0; j < events; ++j) {
-                ns_lp_printf("%u, ", matrix[i * events + j]);
+                ns_pmu_printf("%u, ", matrix[i * events + j]);
             }
-            ns_lp_printf("\n");
+            ns_pmu_printf("\n");
         }
     }
 }

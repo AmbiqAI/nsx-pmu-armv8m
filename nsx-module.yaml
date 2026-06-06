@@ -41,16 +41,16 @@ depends:
     - nsx-cmsis-core
     - nsx-core
     - nsx-soc-hal
-  optional:
-    - nsx-harness
 
 compatibility:
   boards:
     - "*"
   socs:
+    - atomiq110
     - apollo5b
     - apollo510
     - apollo510b
+    - apollo510L
     - apollo330P
   toolchains:
     - arm-none-eabi-gcc
