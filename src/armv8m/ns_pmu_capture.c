@@ -8,7 +8,7 @@
 
 #include <string.h>
 
-#include "ns_core.h"
+#include "nsx_core.h"
 #include "ns_pmu_map.h"
 
 static uint16_t ns_pmu_capture_min_u16(uint16_t left, uint16_t right)
@@ -48,7 +48,7 @@ static uint32_t ns_pmu_capture_prepare_pass(ns_pmu_capture_t *capture)
 
     if (capture->current_event_base >= capture->total_event_count) {
         capture->current_pass_events = 0;
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     }
 
     pass_events = ns_pmu_capture_min_u16(capture->events_per_pass,
@@ -60,7 +60,7 @@ static uint32_t ns_pmu_capture_prepare_pass(ns_pmu_capture_t *capture)
         uint32_t status = ns_pmu_capture_get_event_map_index(capture,
                                                              capture->current_event_base + slot,
                                                              &map_index);
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
         ns_pmu_event_create(&capture->pmu_cfg.events[slot],
@@ -95,17 +95,17 @@ uint32_t ns_pmu_capture_init(ns_pmu_capture_t *capture, const ns_pmu_capture_cfg
     uint32_t required_storage;
 
     if (capture == NULL || cfg == NULL || cfg->matrix_storage == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (cfg->total_ops == 0) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     total_event_count = ns_pmu_capture_get_event_count(cfg);
     ops_per_chunk = ns_pmu_capture_get_ops_per_chunk(cfg);
     if (total_event_count == 0 || total_event_count > NS_PMU_MAP_SIZE ||
         ops_per_chunk == 0 || ops_per_chunk > cfg->total_ops) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     capture->api = (cfg->api == NULL) ? &ns_pmu_V1_0_0 : cfg->api;
@@ -120,13 +120,13 @@ uint32_t ns_pmu_capture_init(ns_pmu_capture_t *capture, const ns_pmu_capture_cfg
         capture->events_per_pass = NS_PMU_CAPTURE_MAX_EVENTS_PER_PASS;
     }
     if (capture->events_per_pass > NS_PMU_CAPTURE_MAX_EVENTS_PER_PASS) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     required_storage = ns_pmu_capture_required_storage(capture->ops_per_chunk,
                                                        capture->total_event_count);
     if (capture->matrix_storage_count < required_storage) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     capture->complete = false;
@@ -137,7 +137,7 @@ uint32_t ns_pmu_capture_init(ns_pmu_capture_t *capture, const ns_pmu_capture_cfg
 uint32_t ns_pmu_capture_reset(ns_pmu_capture_t *capture)
 {
     if (capture == NULL || capture->matrix_storage == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     capture->complete = false;
     return ns_pmu_capture_reset_chunk(capture, 0);
@@ -153,10 +153,10 @@ uint32_t ns_pmu_capture_model_end(ns_pmu_capture_t *capture)
     uint16_t next_event_base;
 
     if (capture == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (capture->chunk_ready || capture->complete) {
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     }
 
     next_event_base = capture->current_event_base + capture->current_pass_events;
@@ -164,7 +164,7 @@ uint32_t ns_pmu_capture_model_end(ns_pmu_capture_t *capture)
         capture->chunk_ready = true;
         capture->complete =
             (capture->current_chunk_start + capture->current_chunk_ops) >= capture->total_ops;
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     }
 
     capture->current_event_base = next_event_base;
@@ -206,7 +206,7 @@ void ns_pmu_capture_layer_end(ns_pmu_capture_t *capture, uint16_t global_op_inde
     if (!ns_pmu_capture_should_sample_layer(capture, global_op_index, &chunk_op_index)) {
         return;
     }
-    if (ns_pmu_get_counters(&capture->pmu_cfg) != NS_STATUS_SUCCESS) {
+    if (ns_pmu_get_counters(&capture->pmu_cfg) != NSX_STATUS_SUCCESS) {
         return;
     }
 
@@ -233,14 +233,14 @@ uint32_t ns_pmu_capture_advance_chunk(ns_pmu_capture_t *capture)
     uint16_t next_chunk_start;
 
     if (capture == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (!capture->chunk_ready) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
     if (capture->complete) {
         capture->chunk_ready = false;
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     }
 
     next_chunk_start = capture->current_chunk_start + capture->current_chunk_ops;
@@ -251,7 +251,7 @@ uint32_t ns_pmu_capture_get_chunk_info(const ns_pmu_capture_t *capture,
                                        ns_pmu_capture_chunk_info_t *info)
 {
     if (capture == NULL || info == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     info->chunk_start = capture->current_chunk_start;
     info->chunk_ops = capture->current_chunk_ops;
@@ -260,16 +260,16 @@ uint32_t ns_pmu_capture_get_chunk_info(const ns_pmu_capture_t *capture,
     info->events_per_pass = capture->events_per_pass;
     info->chunk_ready = capture->chunk_ready;
     info->complete = capture->complete;
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 uint32_t ns_pmu_capture_get_chunk_matrix(const ns_pmu_capture_t *capture, const uint32_t **matrix)
 {
     if (capture == NULL || matrix == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     *matrix = capture->matrix_storage;
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 uint32_t ns_pmu_capture_get_event_map_index(const ns_pmu_capture_t *capture,
@@ -277,10 +277,10 @@ uint32_t ns_pmu_capture_get_event_map_index(const ns_pmu_capture_t *capture,
                                             uint16_t *map_index)
 {
     if (capture == NULL || map_index == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (logical_event_index >= capture->total_event_count) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     if (capture->event_map_indices == NULL) {
@@ -290,9 +290,9 @@ uint32_t ns_pmu_capture_get_event_map_index(const ns_pmu_capture_t *capture,
     }
 
     if (*map_index >= NS_PMU_MAP_SIZE) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
@@ -302,15 +302,15 @@ uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
     uint32_t status;
 
     if (capture == NULL || transport == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (!capture->chunk_ready) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     if (include_header) {
         status = ns_pmu_transport_write_cstr(transport, "# nsx_pmu_capture_csv_v1\n");
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
         status = ns_pmu_transport_printf(
@@ -321,12 +321,12 @@ uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
             capture->total_ops,
             capture->total_event_count,
             capture->events_per_pass);
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
 
         status = ns_pmu_transport_write_cstr(transport, "layer_index");
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
         for (uint16_t logical_event_index = 0; logical_event_index < capture->total_event_count;
@@ -334,21 +334,21 @@ uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
             uint16_t map_index;
 
             status = ns_pmu_capture_get_event_map_index(capture, logical_event_index, &map_index);
-            if (status != NS_STATUS_SUCCESS) {
+            if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
             status = ns_pmu_transport_printf(transport, ",%s", ns_pmu_map[map_index].regname);
-            if (status != NS_STATUS_SUCCESS) {
+            if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
         }
         status = ns_pmu_transport_write_cstr(transport, "\n");
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
 
         status = ns_pmu_transport_write_cstr(transport, "event_id");
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
         for (uint16_t logical_event_index = 0; logical_event_index < capture->total_event_count;
@@ -356,16 +356,16 @@ uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
             uint16_t map_index;
 
             status = ns_pmu_capture_get_event_map_index(capture, logical_event_index, &map_index);
-            if (status != NS_STATUS_SUCCESS) {
+            if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
             status = ns_pmu_transport_printf(transport, ",0x%04x", ns_pmu_map[map_index].eventId);
-            if (status != NS_STATUS_SUCCESS) {
+            if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
         }
         status = ns_pmu_transport_write_cstr(transport, "\n");
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
     }
@@ -374,7 +374,7 @@ uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
         status = ns_pmu_transport_printf(transport,
                                          "%u",
                                          capture->current_chunk_start + chunk_op_index);
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
 
@@ -386,12 +386,12 @@ uint32_t ns_pmu_capture_serialize_csv(const ns_pmu_capture_t *capture,
             status = ns_pmu_transport_printf(transport,
                                              ",%u",
                                              capture->matrix_storage[matrix_offset]);
-            if (status != NS_STATUS_SUCCESS) {
+            if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
         }
         status = ns_pmu_transport_write_cstr(transport, "\n");
-        if (status != NS_STATUS_SUCCESS) {
+        if (status != NSX_STATUS_SUCCESS) {
             return status;
         }
     }

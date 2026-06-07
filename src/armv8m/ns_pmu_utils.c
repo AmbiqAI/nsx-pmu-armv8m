@@ -9,7 +9,7 @@
 #include "am_mcu_apollo.h"
 
 #include "m-profile/armv8m_pmu.h"
-#include "ns_core.h"
+#include "nsx_core.h"
 #include "ns_pmu_map.h"
 #include "ns_pmu_utils.h"
 #include "nsx_ambiq_pmu.h"
@@ -33,11 +33,11 @@
      PMU_OVSCLR_CNT6_STATUS_Msk | PMU_OVSCLR_CNT7_STATUS_Msk |                 \
      PMU_OVSCLR_CYCCNT_STATUS_Msk)
 
-const ns_core_api_t ns_pmu_V0_0_1 = {.apiId = NS_PMU_API_ID, .version = NS_PMU_V0_0_1};
-const ns_core_api_t ns_pmu_V1_0_0 = {.apiId = NS_PMU_API_ID, .version = NS_PMU_V1_0_0};
-const ns_core_api_t ns_pmu_oldest_supported_version = {
+const nsx_core_api_t ns_pmu_V0_0_1 = {.apiId = NS_PMU_API_ID, .version = NS_PMU_V0_0_1};
+const nsx_core_api_t ns_pmu_V1_0_0 = {.apiId = NS_PMU_API_ID, .version = NS_PMU_V1_0_0};
+const nsx_core_api_t ns_pmu_oldest_supported_version = {
     .apiId = NS_PMU_API_ID, .version = NS_PMU_V0_0_1};
-const ns_core_api_t ns_pmu_current_version = {
+const nsx_core_api_t ns_pmu_current_version = {
     .apiId = NS_PMU_API_ID, .version = NS_PMU_V1_0_0};
 
 static nsx_ambiq_pmu_config_t ns_ambiq_pmu_config;
@@ -153,21 +153,21 @@ static void ns_pmu_copy_name(char *dest, const char *src)
 static uint32_t cntr_enable(uint32_t counters_enable)
 {
     if (counters_enable & (~NS_PMU_VALID_COUNTERS)) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     ARM_PMU_CNTR_Enable(counters_enable);
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 static uint32_t cntr_disable(uint32_t counters_disable)
 {
     if (counters_disable & (~NS_PMU_VALID_COUNTERS)) {
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 
     ARM_PMU_CNTR_Disable(counters_disable);
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 static int ns_pmu_get_map_index(uint32_t event_id)
@@ -197,19 +197,19 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
     uint8_t total_counters = 0;
     uint32_t counter_mask = PMU_CNTENSET_CCNTR_ENABLE_Msk;
 
-#ifndef NS_DISABLE_API_VALIDATION
+#ifndef NSX_DISABLE_API_VALIDATION
     if (cfg == NULL) {
         ns_pmu_printf("Invalid handle\n");
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (cfg->api == NULL) {
         ns_pmu_printf("Invalid PMU API version\n");
-        return NS_STATUS_INVALID_VERSION;
+        return NSX_STATUS_INVALID_VERSION;
     }
-    if (ns_core_check_api(cfg->api, &ns_pmu_oldest_supported_version, &ns_pmu_current_version) !=
-        NS_STATUS_SUCCESS) {
+    if (nsx_core_check_api(cfg->api, &ns_pmu_oldest_supported_version, &ns_pmu_current_version) !=
+        NSX_STATUS_SUCCESS) {
         ns_pmu_printf("Invalid PMU API version\n");
-        return NS_STATUS_INVALID_VERSION;
+        return NSX_STATUS_INVALID_VERSION;
     }
 
     for (uint32_t i = 0; i < NS_PMU_MAX_COUNTERS; ++i) {
@@ -221,12 +221,12 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
         } else if (cfg->events[i].counterSize == NS_PMU_EVENT_COUNTER_SIZE_16) {
             total_counters += 1;
         } else {
-            return NS_STATUS_INVALID_CONFIG;
+            return NSX_STATUS_INVALID_CONFIG;
         }
     }
     if (total_counters > NS_PMU_MAX_COUNTERS) {
         ns_pmu_printf("Too many counters enabled tc is %d\n", total_counters);
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 #endif
 
@@ -244,7 +244,7 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
         int map_index = ns_pmu_get_map_index(cfg->events[i].eventId);
         if (map_index < 0) {
             ns_pmu_printf("Invalid event id %d\n", cfg->events[i].eventId);
-            return NS_STATUS_INVALID_CONFIG;
+            return NSX_STATUS_INVALID_CONFIG;
         }
         cfg->counter[i].mapIndex = (uint32_t) map_index;
     }
@@ -279,24 +279,24 @@ uint32_t ns_pmu_init(ns_pmu_config_t *cfg)
 
     ns_ambiq_pmu_config.counters = counter_mask;
     if (nsx_ambiq_pmu_enable() != 0U) {
-        return NS_STATUS_INIT_FAILED;
+        return NSX_STATUS_INIT_FAILED;
     }
     if (nsx_ambiq_pmu_init(&ns_ambiq_pmu_config) != 0U) {
-        return NS_STATUS_INIT_FAILED;
+        return NSX_STATUS_INIT_FAILED;
     }
     ns_pmu_initialized = true;
     ns_pmu_profiling = true;
 
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 uint32_t ns_pmu_get_counters(ns_pmu_config_t *cfg)
 {
     if (cfg == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
     if (!ns_pmu_initialized || !ns_pmu_profiling) {
-        return NS_STATUS_INIT_FAILED;
+        return NSX_STATUS_INIT_FAILED;
     }
 
     cntr_disable(ns_ambiq_pmu_config.counters);
@@ -320,7 +320,7 @@ uint32_t ns_pmu_get_counters(ns_pmu_config_t *cfg)
 
     ns_pmu_reset_counters();
     cntr_enable(ns_ambiq_pmu_config.counters);
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 void ns_delta_pmu(ns_pmu_counters_t *s, ns_pmu_counters_t *e, ns_pmu_counters_t *d)
@@ -335,7 +335,7 @@ void ns_delta_pmu(ns_pmu_counters_t *s, ns_pmu_counters_t *e, ns_pmu_counters_t 
 uint32_t ns_pmu_print_counters(ns_pmu_config_t *cfg)
 {
     if (cfg == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
 
     for (uint32_t i = 0; i < NS_PMU_MAX_COUNTERS; ++i) {
@@ -349,7 +349,7 @@ uint32_t ns_pmu_print_counters(ns_pmu_config_t *cfg)
                      ns_pmu_map[map_index].regname,
                      ns_pmu_map[map_index].description);
     }
-    return NS_STATUS_SUCCESS;
+    return NSX_STATUS_SUCCESS;
 }
 
 void ns_pmu_get_name(ns_pmu_config_t *cfg, uint32_t i, char *name)
@@ -388,7 +388,7 @@ void ns_pmu_reset_config(ns_pmu_config_t *cfg)
 uint32_t ns_pmu_apply_preset(ns_pmu_config_t *cfg, ns_pmu_preset_e preset)
 {
     if (cfg == NULL) {
-        return NS_STATUS_INVALID_HANDLE;
+        return NSX_STATUS_INVALID_HANDLE;
     }
 
     ns_pmu_reset_config(cfg);
@@ -399,27 +399,27 @@ uint32_t ns_pmu_apply_preset(ns_pmu_config_t *cfg, ns_pmu_preset_e preset)
         ns_pmu_event_create(&(cfg->events[1]), ARM_PMU_INST_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[2]), ARM_PMU_STALL_FRONTEND, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[3]), ARM_PMU_STALL_BACKEND, NS_PMU_EVENT_COUNTER_SIZE_32);
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     case NS_PMU_PRESET_MEMORY:
         ns_pmu_event_create(&(cfg->events[0]), ARM_PMU_MEM_ACCESS, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[1]), ARM_PMU_L1D_CACHE_REFILL, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[2]), ARM_PMU_BUS_ACCESS, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[3]), ARM_PMU_BUS_CYCLES, NS_PMU_EVENT_COUNTER_SIZE_32);
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     case NS_PMU_PRESET_MVE:
         ns_pmu_event_create(&(cfg->events[0]), ARM_PMU_MVE_INST_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[1]), ARM_PMU_MVE_INT_MAC_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[2]), ARM_PMU_MVE_LDST_MULTI_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[3]), ARM_PMU_MVE_STALL, NS_PMU_EVENT_COUNTER_SIZE_32);
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     case NS_PMU_PRESET_ML_DEFAULT:
         ns_pmu_event_create(&(cfg->events[0]), ARM_PMU_MVE_INST_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[1]), ARM_PMU_MVE_INT_MAC_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[2]), ARM_PMU_INST_RETIRED, NS_PMU_EVENT_COUNTER_SIZE_32);
         ns_pmu_event_create(&(cfg->events[3]), ARM_PMU_BUS_CYCLES, NS_PMU_EVENT_COUNTER_SIZE_32);
-        return NS_STATUS_SUCCESS;
+        return NSX_STATUS_SUCCESS;
     default:
-        return NS_STATUS_INVALID_CONFIG;
+        return NSX_STATUS_INVALID_CONFIG;
     }
 }
 
@@ -453,11 +453,11 @@ void ns_pmu_characterize_function(invoke_fp func, ns_pmu_config_t *cfg)
                                 NS_PMU_EVENT_COUNTER_SIZE_32);
         }
 
-        if (ns_pmu_init(cfg) != NS_STATUS_SUCCESS) {
+        if (ns_pmu_init(cfg) != NSX_STATUS_SUCCESS) {
             return;
         }
         func();
-        if (ns_pmu_get_counters(cfg) != NS_STATUS_SUCCESS) {
+        if (ns_pmu_get_counters(cfg) != NSX_STATUS_SUCCESS) {
             return;
         }
         ns_pmu_print_counters(cfg);

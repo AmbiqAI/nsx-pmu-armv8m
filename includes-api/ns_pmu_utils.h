@@ -13,7 +13,7 @@
 #ifndef NS_PMU_UTILS_H
 #define NS_PMU_UTILS_H
 
-#include "ns_core.h"
+#include "nsx_core.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,10 +56,10 @@ void ns_pmu_set_print_fn(ns_pmu_print_fn_t fn);
  */
 void ns_pmu_printf(const char *fmt, ...);
 
-extern const ns_core_api_t ns_pmu_V0_0_1;
-extern const ns_core_api_t ns_pmu_V1_0_0;
-extern const ns_core_api_t ns_pmu_oldest_supported_version;
-extern const ns_core_api_t ns_pmu_current_version;
+extern const nsx_core_api_t ns_pmu_V0_0_1;
+extern const nsx_core_api_t ns_pmu_V1_0_0;
+extern const nsx_core_api_t ns_pmu_oldest_supported_version;
+extern const nsx_core_api_t ns_pmu_current_version;
 
 typedef enum {
     NS_PMU_EVENT_COUNTER_SIZE_16 = 0,
@@ -84,7 +84,7 @@ typedef struct {
 } ns_pmu_counters_t; // just the counter values, used for snapshots
 
 typedef struct ns_pmu_config {
-    const ns_core_api_t *api;
+    const nsx_core_api_t *api;
     ns_pmu_event_t events[NS_PMU_MAX_COUNTERS];
     ns_pmu_counter_t counter[NS_PMU_MAX_COUNTERS];
 } ns_pmu_config_t;

@@ -20,7 +20,7 @@ extern "C" {
 #define NS_PMU_CAPTURE_MAX_EVENTS_PER_PASS (NS_PMU_MAX_COUNTERS / 2)
 
 typedef struct {
-    const ns_core_api_t *api;
+    const nsx_core_api_t *api;
     uint16_t total_ops;
     uint16_t ops_per_chunk;
     uint16_t event_count;
@@ -41,7 +41,7 @@ typedef struct {
 } ns_pmu_capture_chunk_info_t;
 
 typedef struct {
-    const ns_core_api_t *api;
+    const nsx_core_api_t *api;
     const uint16_t *event_map_indices;
     uint32_t *matrix_storage;
     uint32_t matrix_storage_count;
