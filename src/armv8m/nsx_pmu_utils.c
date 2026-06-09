@@ -316,11 +316,11 @@ uint32_t nsx_pmu_print_counters(nsx_pmu_config_t *cfg)
             continue;
         }
         uint32_t map_index = cfg->counter[i].mapIndex;
-        nsx_printf("%d %d, \t%s, \t \"%s\"\n",
-                     i,
-                     cfg->counter[i].counterValue,
-                     nsx_pmu_map[map_index].regname,
-                     nsx_pmu_map[map_index].description);
+        nsx_printf("[%lu] %s=%lu\r\n",
+                   (unsigned long)i,
+                   nsx_pmu_map[map_index].regname,
+                   (unsigned long)cfg->counter[i].counterValue);
+        nsx_printf("    %s\r\n", nsx_pmu_map[map_index].description);
     }
     return NSX_STATUS_SUCCESS;
 }
