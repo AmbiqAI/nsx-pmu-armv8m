@@ -17,7 +17,7 @@ PMU layer.
 
 Design notes:
 
-- source is organized around the shared Armv8-M PMU implementation rather than per-SoC duplication
+- source is organized around the shared Armv8-M PMU implementation
 - SoC gating still happens in CMake and module metadata so unsupported targets fail early
 - accumulator helpers are intended for model, layer, and function profiling flows used by LiteRT for Microcontrollers and NSX runtime variants
 - full-map MVE profiling still uses repeated passes because only four 32-bit PMU events can be sampled at once on the current M55 targets
@@ -25,25 +25,11 @@ Design notes:
 
 ## Toolchains
 
-Built and validated under `arm-none-eabi-gcc`, `armclang`, and `clang`/ATfE.
-PMU access is via CMSIS-6 PMU intrinsics (`PMU_*` macros) supplied by
+Built and validated under `arm-none-eabi-gcc` and ATfE. PMU access is via CMSIS-6 PMU intrinsics (`PMU_*` macros) supplied by
 `nsx-cmsis-core`; toolchain-specific intrinsic mappings are handled inside
 CMSIS-6's `cmsis_<compiler>.h`.
 
 ## Dependencies
 
 - `nsx-cmsis-core` (required) — CMSIS-6 core + PMU headers.
-- `nsx-core` (required) — status codes, API-version checks, and runtime helpers.
-- `nsx-soc-hal` (required) — `am_util_pmu` PMU programming utilities.
-
-This module has **no console or harness dependency**. Diagnostic output
-(matrix dumps, validation messages, counter reports) is routed through an
-optional print sink. Install one to see output:
-
-```c
-#include "ns_pmu_utils.h"
-
-static void my_pmu_print(const char *text) { ns_lp_printf("%s", text); }
-
-ns_pmu_set_print_fn(my_pmu_print);   // omit to silence PMU diagnostics
-```
+- `nsx-core` — for shared status, delay, and runtime helper APIs used by the PMU layer.

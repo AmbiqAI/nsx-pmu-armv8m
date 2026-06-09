@@ -1,26 +1,26 @@
 /**
- * @file ns_pmu_transport.c
- * @author neuralSPOT
+ * @file nsx_pmu_transport.c
+ * @author Ambiq
  * @brief Transport helpers for PMU serialization.
  */
 
-#include "ns_pmu_transport.h"
+#include "nsx_pmu_transport.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "ns_pmu_utils.h"
+#include "nsx_core.h"
 #include "nsx_core.h"
 
 typedef struct {
-    char line_buffer[NS_PMU_TRANSPORT_PRINTF_BUFFER_BYTES];
+    char line_buffer[NSX_PMU_TRANSPORT_PRINTF_BUFFER_BYTES];
     uint32_t used;
-} ns_pmu_log_sink_context_t;
+} nsx_pmu_log_sink_context_t;
 
-static ns_pmu_log_sink_context_t g_ns_pmu_log_sink_context;
+static nsx_pmu_log_sink_context_t g_nsx_pmu_log_sink_context;
 
-static uint32_t ns_pmu_log_sink_emit(ns_pmu_log_sink_context_t *context)
+static uint32_t nsx_pmu_log_sink_emit(nsx_pmu_log_sink_context_t *context)
 {
     if (context == NULL) {
         return NSX_STATUS_INVALID_HANDLE;
@@ -30,17 +30,17 @@ static uint32_t ns_pmu_log_sink_emit(ns_pmu_log_sink_context_t *context)
     }
 
     context->line_buffer[context->used] = '\0';
-    ns_pmu_printf("%s", context->line_buffer);
+    nsx_printf("%s", context->line_buffer);
     context->used = 0;
     return NSX_STATUS_SUCCESS;
 }
 
-static uint32_t ns_pmu_log_sink_write(void *context, const uint8_t *data, uint32_t size)
+static uint32_t nsx_pmu_log_sink_write(void *context, const uint8_t *data, uint32_t size)
 {
-    ns_pmu_log_sink_context_t *log_context = (ns_pmu_log_sink_context_t *) context;
+    nsx_pmu_log_sink_context_t *log_context = (nsx_pmu_log_sink_context_t *) context;
 
     if (log_context == NULL) {
-        log_context = &g_ns_pmu_log_sink_context;
+        log_context = &g_nsx_pmu_log_sink_context;
     }
     if (data == NULL && size != 0) {
         return NSX_STATUS_INVALID_HANDLE;
@@ -48,7 +48,7 @@ static uint32_t ns_pmu_log_sink_write(void *context, const uint8_t *data, uint32
 
     for (uint32_t offset = 0; offset < size; ++offset) {
         if (log_context->used >= (sizeof(log_context->line_buffer) - 1U)) {
-            uint32_t status = ns_pmu_log_sink_emit(log_context);
+            uint32_t status = nsx_pmu_log_sink_emit(log_context);
             if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
@@ -56,7 +56,7 @@ static uint32_t ns_pmu_log_sink_write(void *context, const uint8_t *data, uint32
 
         log_context->line_buffer[log_context->used++] = (char) data[offset];
         if (data[offset] == (uint8_t) '\n') {
-            uint32_t status = ns_pmu_log_sink_emit(log_context);
+            uint32_t status = nsx_pmu_log_sink_emit(log_context);
             if (status != NSX_STATUS_SUCCESS) {
                 return status;
             }
@@ -65,17 +65,17 @@ static uint32_t ns_pmu_log_sink_write(void *context, const uint8_t *data, uint32
     return NSX_STATUS_SUCCESS;
 }
 
-static uint32_t ns_pmu_log_sink_flush(void *context)
+static uint32_t nsx_pmu_log_sink_flush(void *context)
 {
-    ns_pmu_log_sink_context_t *log_context = (ns_pmu_log_sink_context_t *) context;
+    nsx_pmu_log_sink_context_t *log_context = (nsx_pmu_log_sink_context_t *) context;
 
     if (log_context == NULL) {
-        log_context = &g_ns_pmu_log_sink_context;
+        log_context = &g_nsx_pmu_log_sink_context;
     }
-    return ns_pmu_log_sink_emit(log_context);
+    return nsx_pmu_log_sink_emit(log_context);
 }
 
-uint32_t ns_pmu_transport_write(ns_pmu_transport_t *transport,
+uint32_t nsx_pmu_transport_write(nsx_pmu_transport_t *transport,
                                 const void *data,
                                 uint32_t size)
 {
@@ -85,17 +85,17 @@ uint32_t ns_pmu_transport_write(ns_pmu_transport_t *transport,
     return transport->write(transport->context, (const uint8_t *) data, size);
 }
 
-uint32_t ns_pmu_transport_write_cstr(ns_pmu_transport_t *transport, const char *text)
+uint32_t nsx_pmu_transport_write_cstr(nsx_pmu_transport_t *transport, const char *text)
 {
     if (text == NULL) {
         return NSX_STATUS_INVALID_HANDLE;
     }
-    return ns_pmu_transport_write(transport, text, (uint32_t) strlen(text));
+    return nsx_pmu_transport_write(transport, text, (uint32_t) strlen(text));
 }
 
-uint32_t ns_pmu_transport_printf(ns_pmu_transport_t *transport, const char *fmt, ...)
+uint32_t nsx_pmu_transport_printf(nsx_pmu_transport_t *transport, const char *fmt, ...)
 {
-    char buffer[NS_PMU_TRANSPORT_PRINTF_BUFFER_BYTES];
+    char buffer[NSX_PMU_TRANSPORT_PRINTF_BUFFER_BYTES];
     va_list args;
     int length;
 
@@ -114,10 +114,10 @@ uint32_t ns_pmu_transport_printf(ns_pmu_transport_t *transport, const char *fmt,
     if ((uint32_t) length >= sizeof(buffer)) {
         length = (int) sizeof(buffer) - 1;
     }
-    return ns_pmu_transport_write(transport, buffer, (uint32_t) length);
+    return nsx_pmu_transport_write(transport, buffer, (uint32_t) length);
 }
 
-uint32_t ns_pmu_transport_flush(ns_pmu_transport_t *transport)
+uint32_t nsx_pmu_transport_flush(nsx_pmu_transport_t *transport)
 {
     if (transport == NULL) {
         return NSX_STATUS_INVALID_HANDLE;
@@ -128,13 +128,13 @@ uint32_t ns_pmu_transport_flush(ns_pmu_transport_t *transport)
     return transport->flush(transport->context);
 }
 
-void ns_pmu_transport_log_sink_init(ns_pmu_transport_t *transport)
+void nsx_pmu_transport_log_sink_init(nsx_pmu_transport_t *transport)
 {
     if (transport == NULL) {
         return;
     }
-    memset(&g_ns_pmu_log_sink_context, 0, sizeof(g_ns_pmu_log_sink_context));
-    transport->context = &g_ns_pmu_log_sink_context;
-    transport->write = ns_pmu_log_sink_write;
-    transport->flush = ns_pmu_log_sink_flush;
+    memset(&g_nsx_pmu_log_sink_context, 0, sizeof(g_nsx_pmu_log_sink_context));
+    transport->context = &g_nsx_pmu_log_sink_context;
+    transport->write = nsx_pmu_log_sink_write;
+    transport->flush = nsx_pmu_log_sink_flush;
 }

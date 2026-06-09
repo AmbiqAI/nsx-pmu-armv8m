@@ -1,16 +1,16 @@
 /**
- * @file    ns_pmu_acc_matrix.c
- * @author  neuralSPOT
+ * @file    nsx_pmu_acc_matrix.c
+ * @author Ambiq
  * @brief   Implementation of 2-D PMU accumulator.
  */
 
-#include "ns_pmu_utils.h"
-#include "ns_pmu_map.h"
+#include "nsx_pmu_utils.h"
+#include "nsx_pmu_map.h"
 #include <string.h>
-#include "ns_pmu_accumulator.h"
+#include "nsx_pmu_accumulator.h"
 
 #ifndef EVENTS_PER_RUN
-#define EVENTS_PER_RUN (NS_PMU_MAX_COUNTERS / 2)
+#define EVENTS_PER_RUN (NSX_PMU_MAX_COUNTERS / 2)
 #endif
 
 typedef struct {
@@ -26,50 +26,50 @@ typedef struct {
     uint16_t next_event;
     uint16_t next_row;
     uint32_t *sum;
-    tag_map_t tag_map[NS_PMU_MAX_OPS];
-    ns_pmu_config_t cfg;
+    tag_map_t tag_map[NSX_PMU_MAX_OPS];
+    nsx_pmu_config_t cfg;
 } acc_t;
 
-static acc_t g_acc[NS_PMU_MAX_ACTIVE_MATRICES] = {0};
+static acc_t g_acc[NSX_PMU_MAX_ACTIVE_MATRICES] = {0};
 
-static acc_t *handle_to_acc(ns_pmu_accm_t h)
+static acc_t *handle_to_acc(nsx_pmu_accm_t h)
 {
-    return (h.id < NS_PMU_MAX_ACTIVE_MATRICES && g_acc[h.id].in_use) ? &g_acc[h.id] : NULL;
+    return (h.id < NSX_PMU_MAX_ACTIVE_MATRICES && g_acc[h.id].in_use) ? &g_acc[h.id] : NULL;
 }
 
 static void cfg_select_events(acc_t *a)
 {
-    ns_pmu_reset_config(&a->cfg);
-    a->cfg.api = &ns_pmu_V1_0_0;
+    nsx_pmu_reset_config(&a->cfg);
+    a->cfg.api = &nsx_pmu_V1_0_0;
 
     for (uint8_t i = 0; i < EVENTS_PER_RUN; ++i) {
         uint16_t ev = a->next_event + i;
         if (ev >= a->events) {
             break;
         }
-        ns_pmu_event_create(&a->cfg.events[i],
-                            ns_pmu_map[ev].eventId,
-                            NS_PMU_EVENT_COUNTER_SIZE_32);
+        nsx_pmu_event_create(&a->cfg.events[i],
+                            nsx_pmu_map[ev].eventId,
+                            NSX_PMU_EVENT_COUNTER_SIZE_32);
     }
-    ns_pmu_init(&a->cfg);
+    nsx_pmu_init(&a->cfg);
 }
 
-ns_pmu_accm_t ns_pmu_accm_create(uint16_t ops, uint16_t events, void *backing_buf)
+nsx_pmu_accm_t nsx_pmu_accm_create(uint16_t ops, uint16_t events, void *backing_buf)
 {
-    ns_pmu_accm_t h = {.id = 0xFF};
+    nsx_pmu_accm_t h = {.id = 0xFF};
 
-    if (!backing_buf || ops == 0 || ops > NS_PMU_MAX_OPS || events == 0 ||
-        events > NS_PMU_MAP_SIZE) {
+    if (!backing_buf || ops == 0 || ops > NSX_PMU_MAX_OPS || events == 0 ||
+        events > NSX_PMU_MAP_SIZE) {
         return h;
     }
 
     uint8_t idx;
-    for (idx = 0; idx < NS_PMU_MAX_ACTIVE_MATRICES; ++idx) {
+    for (idx = 0; idx < NSX_PMU_MAX_ACTIVE_MATRICES; ++idx) {
         if (!g_acc[idx].in_use) {
             break;
         }
     }
-    if (idx == NS_PMU_MAX_ACTIVE_MATRICES) {
+    if (idx == NSX_PMU_MAX_ACTIVE_MATRICES) {
         return h;
     }
 
@@ -82,8 +82,8 @@ ns_pmu_accm_t ns_pmu_accm_create(uint16_t ops, uint16_t events, void *backing_bu
     a->sum = (uint32_t *) backing_buf;
     a->next_event = 0;
 
-    memset(a->sum, 0, NS_PMU_MATRIX_BYTES(ops, events));
-    for (uint16_t i = 0; i < NS_PMU_MAX_OPS; ++i) {
+    memset(a->sum, 0, NSX_PMU_MATRIX_BYTES(ops, events));
+    for (uint16_t i = 0; i < NSX_PMU_MAX_OPS; ++i) {
         a->tag_map[i].tag = NULL;
     }
 
@@ -93,7 +93,7 @@ ns_pmu_accm_t ns_pmu_accm_create(uint16_t ops, uint16_t events, void *backing_bu
     return h;
 }
 
-void ns_pmu_accm_destroy(ns_pmu_accm_t h)
+void nsx_pmu_accm_destroy(nsx_pmu_accm_t h)
 {
     acc_t *a = handle_to_acc(h);
     if (a) {
@@ -101,12 +101,12 @@ void ns_pmu_accm_destroy(ns_pmu_accm_t h)
     }
 }
 
-void ns_pmu_accm_inference_begin(ns_pmu_accm_t h)
+void nsx_pmu_accm_inference_begin(nsx_pmu_accm_t h)
 {
     (void) h;
 }
 
-void ns_pmu_accm_inference_end(ns_pmu_accm_t h)
+void nsx_pmu_accm_inference_end(nsx_pmu_accm_t h)
 {
     acc_t *a = handle_to_acc(h);
     if (!a || a->complete) {
@@ -122,24 +122,24 @@ void ns_pmu_accm_inference_end(ns_pmu_accm_t h)
     cfg_select_events(a);
 }
 
-void ns_pmu_accm_op_begin(ns_pmu_accm_t h, uint16_t op_idx)
+void nsx_pmu_accm_op_begin(nsx_pmu_accm_t h, uint16_t op_idx)
 {
     acc_t *a = handle_to_acc(h);
     if (!a || op_idx >= a->ops) {
         return;
     }
 
-    ns_pmu_reset_counters();
+    nsx_pmu_reset_counters();
 }
 
-void ns_pmu_accm_op_end(ns_pmu_accm_t h, uint16_t op_idx)
+void nsx_pmu_accm_op_end(nsx_pmu_accm_t h, uint16_t op_idx)
 {
     acc_t *a = handle_to_acc(h);
     if (!a || op_idx >= a->ops) {
         return;
     }
 
-    ns_pmu_get_counters(&a->cfg);
+    nsx_pmu_get_counters(&a->cfg);
 
     for (uint8_t i = 0; i < EVENTS_PER_RUN; ++i) {
         uint16_t ev = a->next_event + i;
@@ -174,7 +174,7 @@ static uint16_t tag_lookup(acc_t *a, const char *tag, bool create_if_missing)
     return row;
 }
 
-uint16_t ns_pmu_accm_resolve_tag(ns_pmu_accm_t h, const char *tag)
+uint16_t nsx_pmu_accm_resolve_tag(nsx_pmu_accm_t h, const char *tag)
 {
     acc_t *a = handle_to_acc(h);
     if (!a || !tag) {
@@ -183,7 +183,7 @@ uint16_t ns_pmu_accm_resolve_tag(ns_pmu_accm_t h, const char *tag)
     return tag_lookup(a, tag, true);
 }
 
-uint16_t ns_pmu_accm_find_tag(ns_pmu_accm_t h, const char *tag)
+uint16_t nsx_pmu_accm_find_tag(nsx_pmu_accm_t h, const char *tag)
 {
     acc_t *a = handle_to_acc(h);
     if (!a || !tag) {
@@ -192,13 +192,13 @@ uint16_t ns_pmu_accm_find_tag(ns_pmu_accm_t h, const char *tag)
     return tag_lookup(a, tag, false);
 }
 
-bool ns_pmu_accm_complete(ns_pmu_accm_t h)
+bool nsx_pmu_accm_complete(nsx_pmu_accm_t h)
 {
     acc_t *a = handle_to_acc(h);
     return a ? a->complete : false;
 }
 
-void ns_pmu_accm_get(ns_pmu_accm_t h, uint32_t **matrix)
+void nsx_pmu_accm_get(nsx_pmu_accm_t h, uint32_t **matrix)
 {
     acc_t *a = handle_to_acc(h);
     if (a && matrix) {
@@ -206,28 +206,28 @@ void ns_pmu_accm_get(ns_pmu_accm_t h, uint32_t **matrix)
     }
 }
 
-void ns_pmu_accmprint_matrix(ns_pmu_accm_t h, uint32_t *matrix, uint16_t ops, uint16_t events)
+void nsx_pmu_accmprint_matrix(nsx_pmu_accm_t h, uint32_t *matrix, uint16_t ops, uint16_t events)
 {
     acc_t *a = handle_to_acc(h);
 
-    ns_pmu_printf("Op: ");
+    nsx_printf("Op: ");
     for (uint16_t j = 0; j < events; ++j) {
-        ns_pmu_printf("%s ", ns_pmu_map[j].regname);
+        nsx_printf("%s ", nsx_pmu_map[j].regname);
     }
-    ns_pmu_printf("\n");
+    nsx_printf("\n");
 
     if (a && matrix) {
         for (uint16_t i = 0; i < ops; ++i) {
-            ns_pmu_printf("%u, ", i);
+            nsx_printf("%u, ", i);
             for (uint16_t j = 0; j < events; ++j) {
-                ns_pmu_printf("%u, ", matrix[i * events + j]);
+                nsx_printf("%u, ", matrix[i * events + j]);
             }
-            ns_pmu_printf("\n");
+            nsx_printf("\n");
         }
     }
 }
 
-void ns_pmu_accm_get_layer(ns_pmu_accm_t h,
+void nsx_pmu_accm_get_layer(nsx_pmu_accm_t h,
                            uint16_t layer,
                            uint32_t *out,
                            uint16_t caller_capacity)
