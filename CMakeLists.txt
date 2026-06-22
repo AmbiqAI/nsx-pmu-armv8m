@@ -13,6 +13,7 @@ endif()
 
 nsx_select_soc_arch_dir(NSX_PMU_IMPL_DIR
     APOLLO5 armv8m
+    ATOMIQ armv8m
     APOLLO330 armv8m
 )
 
