@@ -25,7 +25,7 @@ typedef struct {
 
 #define NSX_PMU_EVENT_NAME_MAX_LEN 50
 
-#if defined(AM_PART_APOLLO5B) || defined(AM_PART_APOLLO510) || defined(AM_PART_APOLLO510B) || defined(AM_PART_APOLLO510L) || defined(AM_PART_APOLLO330P)
+#if defined(AM_PART_APOLLO5B) || defined(AM_PART_APOLLO510) || defined(AM_PART_APOLLO510B) || defined(AM_PART_APOLLO510L) || defined(AM_PART_APOLLO330P) || defined(AM_PART_ATOMIQ11X_API)
 extern uint32_t g_nsx_pmu_map_length;
 #define NS_NUM_PMU_MAP_SIZE (g_nsx_pmu_map_length/sizeof(nsx_pmu_map_t))
 extern const nsx_pmu_map_t nsx_pmu_map[];
