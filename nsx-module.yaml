@@ -53,4 +53,5 @@ compatibility:
     - apollo510L
   toolchains:
     - arm-none-eabi-gcc
+    - armclang
     - atfe
