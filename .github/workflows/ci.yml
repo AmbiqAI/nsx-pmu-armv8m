@@ -33,17 +33,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check nsx-module.yaml version field exists
-        run: |
-          version=$(grep '^  version:' nsx-module.yaml | head -1 | awk '{print $2}' | tr -d '"')
-          if [ -z "$version" ]; then
-            echo "ERROR: No version field in nsx-module.yaml"
-            exit 1
-          fi
-          echo "Module version: $version"
-          echo "MODULE_VERSION=$version" >> "$GITHUB_ENV"
+      - name: Check release metadata
+        run: python3 tools/check_release_consistency.py
 
-      - name: Verify semver format
-        run: |
-          echo "$MODULE_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$' \
-            || { echo "Version '$MODULE_VERSION' is not valid semver"; exit 1; }
+      - name: Check PMU catalog drift
+        run: python3 tools/export_pmu_catalog.py --check
+
+  cmake-smoke:
+    name: Configure and link CMake target
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S tests/cmake-smoke -B build/cmake-smoke
+
+      - name: Build and link
+        run: cmake --build build/cmake-smoke --parallel
+
+      - name: Run smoke executable
+        run: ctest --test-dir build/cmake-smoke --output-on-failure

@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -17,12 +18,36 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
 
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate release metadata
+        run: |
+          python3 tools/check_release_consistency.py
+          python3 tools/export_pmu_catalog.py --check
+
+      - name: Configure CMake smoke test
+        run: cmake -S tests/cmake-smoke -B build/cmake-smoke
+
+      - name: Build and run CMake smoke test
+        run: |
+          cmake --build build/cmake-smoke --parallel
+          ctest --test-dir build/cmake-smoke --output-on-failure
+
       - name: Run Release Please
         id: release
         uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Dispatch CI for release pull request
+        if: steps.release.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PR: ${{ steps.release.outputs.pr }}
+        run: |
+          branch=$(jq -r '.headBranchName' <<< "$RELEASE_PR")
+          gh workflow run ci.yml --ref "$branch"
 
   github-release:
     needs: release-please
