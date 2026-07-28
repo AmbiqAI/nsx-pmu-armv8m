@@ -4,6 +4,7 @@
     ".": {
       "release-type": "simple",
       "package-name": "nsx-pmu-armv8m",
+      "include-component-in-tag": false,
       "include-v-in-tag": true,
       "changelog-path": "CHANGELOG.md",
       "bump-minor-pre-major": true,
