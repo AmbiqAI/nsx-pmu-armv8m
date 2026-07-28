@@ -49,5 +49,6 @@ target_include_directories(disabled_soc_header_smoke PRIVATE
 )
 target_compile_definitions(disabled_soc_header_smoke PRIVATE
     NSX_SOC_PMU_ARMV8M=0
+    PART_atomiq110
 )
 add_test(NAME disabled_soc_header_smoke COMMAND disabled_soc_header_smoke)

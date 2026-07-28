@@ -39,11 +39,12 @@
 
  #ifndef NSX_PMU_MAX_OPS
     // Match TFLM kMaxEvents
-    #if (defined(NSX_SOC_PMU_ARMV8M) && NSX_SOC_PMU_ARMV8M) || defined(PART_atomiq110) ||          \
-        defined(AM_PART_APOLLO5B) || defined(AM_PART_APOLLO510) ||                                \
-        defined(AM_PART_APOLLO510B) || defined(AM_PART_APOLLO510L) ||                             \
-        defined(AM_PART_APOLLO330P) || defined(AM_PART_ATOMIQ11X_API) ||                           \
-        defined(AM_PART_ATOMIQ110)
+    #if (defined(NSX_SOC_PMU_ARMV8M) && NSX_SOC_PMU_ARMV8M) ||                                    \
+        (!defined(NSX_SOC_PMU_ARMV8M) &&                                                           \
+         (defined(PART_atomiq110) || defined(AM_PART_APOLLO5B) ||                                 \
+          defined(AM_PART_APOLLO510) || defined(AM_PART_APOLLO510B) ||                            \
+          defined(AM_PART_APOLLO510L) || defined(AM_PART_APOLLO330P) ||                           \
+          defined(AM_PART_ATOMIQ11X_API) || defined(AM_PART_ATOMIQ110)))
         #define NSX_PMU_MAX_OPS 4096 /* rows / operators        */
     #else
         #define NSX_PMU_MAX_OPS 2048
