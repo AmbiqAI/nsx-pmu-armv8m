@@ -3,6 +3,14 @@
 ## [0.2.0](https://github.com/AmbiqAI/nsx-pmu-armv8m/compare/v0.1.0...v0.2.0) (2026-07-28)
 
 
+### Breaking Changes
+
+* The `ns_pmu_*.h` headers and `ns_pmu_*` types and functions released in
+  v0.1.0 were removed. Migrate includes and symbols to their `nsx_pmu_*`
+  equivalents. The `nsx::pmu_armv8m` CMake target is unchanged, and
+  `ns_delta_pmu()` retains its historical name.
+
+
 ### release
 
 * prepare nsx-pmu-armv8m 0.2.0 baseline ([#7](https://github.com/AmbiqAI/nsx-pmu-armv8m/issues/7)) ([fadbaf7](https://github.com/AmbiqAI/nsx-pmu-armv8m/commit/fadbaf70109766fc90454da6c651ccc49e0591f9))
