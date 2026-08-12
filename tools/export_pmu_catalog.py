@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from pathlib import Path
@@ -37,7 +38,7 @@ def _group_for(name: str) -> str:
     return "cpu"
 
 
-def main() -> None:
+def _render_catalog() -> str:
     text = SOURCE.read_text(encoding="utf-8")
     rows = re.findall(r'\{(0x[0-9A-Fa-f]+),\s*"([^"]+)",\s*"([^"]*)"\}', text)
     payload = [
@@ -49,9 +50,30 @@ def main() -> None:
         }
         for event_id, name, description in rows
     ]
+    return json.dumps(payload, indent=2) + "\n"
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Export the Armv8-M PMU event catalog.")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail if the committed catalog differs from the C source",
+    )
+    args = parser.parse_args()
+
+    rendered = _render_catalog()
+    if args.check:
+        if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != rendered:
+            raise SystemExit(
+                f"{OUTPUT.relative_to(ROOT)} is stale; run tools/export_pmu_catalog.py"
+            )
+        print(f"Verified {OUTPUT.relative_to(ROOT)}")
+        return
+
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {len(payload)} PMU events to {OUTPUT}")
+    OUTPUT.write_text(rendered, encoding="utf-8")
+    print(f"Wrote {OUTPUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
